@@ -18,12 +18,6 @@ public class AppResponse<T> implements Serializable {
     private String errorCode;
     private T data;
 
-    public AppResponse(Date responseDate, String message, String details) {
-        this.responseDate = responseDate;
-        this.message = message;
-        this.details = details;
-    }
-
     public AppResponse(T data) {
         this.data = data;
         this.responseDate = new Date();
@@ -50,13 +44,5 @@ public class AppResponse<T> implements Serializable {
         this.details = null;
         this.errorCode = "0";
     }
-
-    public AppResponse(Date responseDate, HttpStatus httpStatus, String message, String details) {
-        this.responseDate = responseDate;
-        this.httpStatus = httpStatus;
-        this.message = message;
-        this.details = details;
-    }
-
 
 }
