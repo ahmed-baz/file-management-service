@@ -52,48 +52,71 @@ public class FileSystemServiceImpl implements FileSystemService {
 
     @Override
     public AppResponse<ItemVO> createSpace(ItemVO vo) {
-        vo.setType(FileTypeEnum.SPACE);
-        Item item = getItemMapper().VOToEntity(vo);
-        getPermissionGroupRepo().save(item.getPermissionGroup());
-        getPermissionRepo().saveAll(item.getPermissionGroup().getPermissions());
-        Item savedItem = getItemRepo().save(item);
-        return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+        try {
+            vo.setType(FileTypeEnum.SPACE);
+            Item item = getItemMapper().VOToEntity(vo);
+            Item parent = item.getParent();
+            if (parent != null && parent.getId() != null) {
+                validateParentType(parent, FileTypeEnum.SPACE);
+            }
+            getPermissionGroupRepo().save(item.getPermissionGroup());
+            getPermissionRepo().saveAll(item.getPermissionGroup().getPermissions());
+            Item savedItem = getItemRepo().save(item);
+            return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+        } catch (RuntimeException ex) {
+            return new AppResponse<>(ex.getMessage());
+        }
     }
 
     @Override
     public AppResponse<ItemVO> createFolder(ItemVO vo) {
-        vo.setType(FileTypeEnum.FOLDER);
-        Item item = getItemMapper().VOToEntity(vo);
-        PermissionGroup permissionGroup = item.getPermissionGroup();
-        List<Permission> permissionList = getPermissionRepo().findPermissionByPermissionGroup(permissionGroup);
-        boolean editAllowed = isEditAllowed(permissionList);
-        if (editAllowed) {
-            Item savedItem = getItemRepo().save(item);
-            return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+        try {
+            vo.setType(FileTypeEnum.FOLDER);
+            Item item = getItemMapper().VOToEntity(vo);
+            validateParentType(item.getParent(), FileTypeEnum.FOLDER);
+            PermissionGroup permissionGroup = item.getPermissionGroup();
+            List<Permission> permissionList = getPermissionRepo().findPermissionByPermissionGroup(permissionGroup);
+            boolean editAllowed = isEditAllowed(permissionList);
+            if (editAllowed) {
+                Item savedItem = getItemRepo().save(item);
+                return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+            }
+            return new AppResponse<>("action is not allowed");
+        } catch (RuntimeException ex) {
+            return new AppResponse<>(ex.getMessage());
         }
-        return new AppResponse<>("action is not allowed");
     }
 
     @Override
     public AppResponse<ItemVO> createFile(ItemVO vo) {
-        vo.setType(FileTypeEnum.FILE);
-        ItemVO itemVO = vo.getParent();
-        if (null != itemVO) {
-            Optional<Item> optionalParent = getItemRepo().findById(itemVO.getId());
-            if (optionalParent.isPresent()) {
-                Item parent = optionalParent.get();
-                PermissionGroup permissionGroup = parent.getPermissionGroup();
-                boolean editAllowed = isEditAllowed(permissionGroup.getPermissions());
-                if (editAllowed) {
-                    Item item = getItemMapper().VOToEntity(vo);
-                    Item savedItem = getItemRepo().save(item);
-                    //saveFile(file, savedItem);
-                    return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+        try {
+            vo.setType(FileTypeEnum.FILE);
+            ItemVO itemVO = vo.getParent();
+            Item item = getItemMapper().VOToEntity(vo);
+            validateParentType(item.getParent(), FileTypeEnum.FILE);
+            if (null != itemVO) {
+                Optional<Item> optionalParent = getItemRepo().findById(itemVO.getId());
+                if (optionalParent.isPresent()) {
+                    Item parent = optionalParent.get();
+                    PermissionGroup permissionGroup = parent.getPermissionGroup();
+                    boolean editAllowed = isEditAllowed(permissionGroup.getPermissions());
+                    if (editAllowed) {
+                        Item savedItem = getItemRepo().save(item);
+                        //saveFile(file, savedItem);
+                        return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+                    }
                 }
             }
-
+            return new AppResponse<>("action is not allowed");
+        } catch (RuntimeException ex) {
+            return new AppResponse<>(ex.getMessage());
         }
-        return new AppResponse<>("action is not allowed");
+    }
+
+    @Override
+    public AppResponse<List<ItemVO>> viewFiles() {
+        List<Item> items = getItemRepo().viewItems();
+        return new AppResponse<>(getItemMapper().entityListToVOList(items));
     }
 
     private void saveFile(MultipartFile file, Item item) {
@@ -106,13 +129,47 @@ public class FileSystemServiceImpl implements FileSystemService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-
     }
 
-    @Override
-    public AppResponse<List<ItemVO>> viewFiles() {
-        List<Item> items = getItemRepo().viewItems();
-        return new AppResponse<>(getItemMapper().entityListToVOList(items));
+    private void validateParentType(Item parent, FileTypeEnum fileType) {
+        Optional<Item> itemOptional = getItemRepo().findById(parent.getId());
+        if ((FileTypeEnum.FOLDER.equals(fileType) || FileTypeEnum.FILE.equals(fileType)) && itemOptional.isEmpty()) {
+            throw new RuntimeException("the space/folder is not found");
+        }
+        switch (fileType) {
+            case FOLDER:
+                if (itemOptional.isPresent()) {
+                    Item item = itemOptional.get();
+                    if (FileTypeEnum.FILE.equals(item.getType())) {
+                        throw new RuntimeException("invalid space/folder config");
+                    }
+                } else {
+                    throw new RuntimeException("the space not found");
+                }
+                break;
+            case FILE:
+                if (itemOptional.isPresent()) {
+                    Item item = itemOptional.get();
+                    if (FileTypeEnum.FILE.equals(item.getType())) {
+                        throw new RuntimeException("invalid space/folder config");
+                    }
+                } else {
+                    throw new RuntimeException("the space/folder is not found");
+                }
+                break;
+            case SPACE:
+                if (itemOptional.isEmpty()) {
+                    throw new RuntimeException("invalid space config");
+                } else {
+                    Item item = itemOptional.get();
+                    if (FileTypeEnum.FILE.equals(item.getType()) || FileTypeEnum.FOLDER.equals(item.getType())) {
+                        throw new RuntimeException("invalid space config");
+                    }
+                }
+                break;
+            default:
+                throw new RuntimeException("invalid file type");
+        }
     }
 
     private boolean isEditAllowed(List<Permission> permissionList) {
