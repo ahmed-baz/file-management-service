@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="createFile" author="Ahmed.Baz" labels="file-system">
+        <sql>
+            CREATE TABLE file
+            (
+                id          int8         NOT NULL,
+                file_binary oid,
+                "name"      varchar(255) NOT NULL,
+                item_id     int8         NOT NULL,
+                CONSTRAINT file_pkey PRIMARY KEY (id),
+                CONSTRAINT file_item_fk FOREIGN KEY (item_id) REFERENCES item (id)
+            );
+        </sql>
+
+        <sql>
+            CREATE SEQUENCE file_seq
+                INCREMENT 1
+                START 1;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

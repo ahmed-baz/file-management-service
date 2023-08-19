@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="createPermission" author="Ahmed.Baz" labels="file-system">
+        <sql>
+            CREATE TABLE "permission"
+            (
+                id                  int8 NOT NULL,
+                "level"             varchar(255) NULL,
+                user_email          varchar(255) NULL,
+                permission_group_id int8,
+                CONSTRAINT permission_pkey PRIMARY KEY (id),
+                CONSTRAINT permission_group_fk FOREIGN KEY (permission_group_id) REFERENCES permission_group (id)
+            );
+        </sql>
+
+        <sql>
+            CREATE SEQUENCE permission_seq
+                INCREMENT 1
+                START 1;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
