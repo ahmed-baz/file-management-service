@@ -20,4 +20,13 @@ public class ItemVO {
     private PermissionGroupVO permissionGroup;
     private ItemVO parent;
 
+    public ItemVO(String name, FileTypeEnum type, ItemVO parent) {
+        this.name = name;
+        this.type = type;
+        this.parent = parent;
+    }
+
+    public ItemVO(Long id) {
+        this.id = id;
+    }
 }

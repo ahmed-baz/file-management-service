@@ -25,7 +25,7 @@ public class File {
     private String name;
     @Lob
     @Column(name = "file_binary")
-    private byte[] fileBinary;
+    private String fileBinary;
     @JsonBackReference
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "item_id")

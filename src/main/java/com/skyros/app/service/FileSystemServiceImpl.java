@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,8 +90,9 @@ public class FileSystemServiceImpl implements FileSystemService {
         }
     }
 
+
     @Override
-    public AppResponse<ItemVO> createFile(ItemVO vo) {
+    public AppResponse<ItemVO> createFile(MultipartFile file, ItemVO vo) {
         try {
             vo.setType(FileTypeEnum.FILE);
             ItemVO itemVO = vo.getParent();
@@ -103,7 +106,7 @@ public class FileSystemServiceImpl implements FileSystemService {
                     boolean editAllowed = isEditAllowed(permissionGroup.getPermissions());
                     if (editAllowed) {
                         Item savedItem = getItemRepo().save(item);
-                        //saveFile(file, savedItem);
+                        saveFile(file, savedItem);
                         return new AppResponse<>(getItemMapper().entityToVO(savedItem));
                     }
                 }
@@ -126,9 +129,9 @@ public class FileSystemServiceImpl implements FileSystemService {
     private void saveFile(MultipartFile file, Item item) {
         try {
             File itemFile = new File();
-            itemFile.setFileBinary(file.getBytes());
+            itemFile.setFileBinary(new String(file.getBytes(), StandardCharsets.UTF_8));
             itemFile.setItem(item);
-            itemFile.setName(file.getName());
+            itemFile.setName(file.getOriginalFilename());
             getFileRepo().save(itemFile);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

@@ -15,7 +15,7 @@ public class FileVO {
 
     private Long id;
     private String name;
-    private byte[] fileBinary;
+    private String fileBinary;
     private ItemVO item;
 
 }
