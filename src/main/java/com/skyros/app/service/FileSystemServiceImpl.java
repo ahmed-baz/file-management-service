@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,6 +117,9 @@ public class FileSystemServiceImpl implements FileSystemService {
     @Override
     public AppResponse<List<ItemVO>> viewFiles() {
         List<Item> items = getItemRepo().viewItems();
+        for (Item item : items) {
+            item.getPermissionGroup().setPermissions(new ArrayList<>());
+        }
         return new AppResponse<>(getItemMapper().entityListToVOList(items));
     }
 
