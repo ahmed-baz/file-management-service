@@ -2,16 +2,11 @@ package com.skyros.app.service;
 
 import com.skyros.app.enums.FileTypeEnum;
 import com.skyros.app.enums.PermissionLevelEnum;
+import com.skyros.app.mapper.FolderMapper;
 import com.skyros.app.mapper.ItemMapper;
 import com.skyros.app.mapper.PermissionGroupMapper;
-import com.skyros.app.model.File;
-import com.skyros.app.model.Item;
-import com.skyros.app.model.Permission;
-import com.skyros.app.model.PermissionGroup;
-import com.skyros.app.repo.FileRepo;
-import com.skyros.app.repo.ItemRepo;
-import com.skyros.app.repo.PermissionGroupRepo;
-import com.skyros.app.repo.PermissionRepo;
+import com.skyros.app.model.*;
+import com.skyros.app.repo.*;
 import com.skyros.app.vo.AppResponse;
 import com.skyros.app.vo.ItemVO;
 import com.skyros.app.vo.PermissionGroupVO;
@@ -44,6 +39,10 @@ public class FileSystemServiceImpl implements FileSystemService {
     private PermissionGroupMapper permissionGroupMapper;
     @Autowired
     private FileRepo fileRepo;
+    @Autowired
+    private FolderRepo folderRepo;
+    @Autowired
+    private FolderMapper folderMapper;
 
 
     @Override
@@ -79,9 +78,9 @@ public class FileSystemServiceImpl implements FileSystemService {
             List<Permission> permissionList = getPermissionRepo().findPermissionByPermissionGroup(parent.getPermissionGroup());
             boolean editAllowed = isEditAllowed(permissionList);
             if (editAllowed) {
-                //item.setPermissionGroup(new PermissionGroup(parent.getPermissionGroup().getId()));
-                Item savedItem = getItemRepo().save(item);
-                return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+                Folder folder = getFolderMapper().itemToFolder(item);
+                Folder savedFolder = getFolderRepo().save(folder);
+                return new AppResponse<>(getFolderMapper().folderToItemVO(savedFolder));
             }
             return new AppResponse<>("action is not allowed");
         } catch (RuntimeException ex) {

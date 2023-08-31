@@ -9,21 +9,19 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-@Entity
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Table(name = "item")
-public class Item extends BaseItem {
+public class Folder extends BaseItem {
 
     @JsonBackReference
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "permission_group_id")
+    @ManyToOne(cascade = CascadeType.MERGE)
     private PermissionGroup permissionGroup;
     @JsonBackReference
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "parent_id")
     private Item parent;
 
 }
