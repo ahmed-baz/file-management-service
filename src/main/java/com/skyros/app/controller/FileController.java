@@ -40,9 +40,8 @@ public class FileController {
     }
 
     @PostMapping("file/add")
-    public AppResponse<ItemVO> createFile(@RequestParam MultipartFile file, @RequestParam String fileName, @RequestParam Long parentId) {
-        ItemVO vo = new ItemVO(fileName, FileTypeEnum.FILE, new ItemVO(parentId));
-        return getFileSystemService().createFile(file, vo);
+    public AppResponse<ItemVO> createFile(@RequestBody ItemVO vo) {
+        return getFileSystemService().createFile(vo);
     }
 
     @PostMapping("file/view")

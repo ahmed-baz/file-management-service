@@ -19,6 +19,8 @@ public class ItemVO {
     private FileTypeEnum type;
     private PermissionGroupVO permissionGroup;
     private ItemVO parent;
+    private String file;
+
 
     public ItemVO(String name, FileTypeEnum type, ItemVO parent) {
         this.name = name;

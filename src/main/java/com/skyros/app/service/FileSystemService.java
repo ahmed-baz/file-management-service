@@ -17,7 +17,7 @@ public interface FileSystemService {
 
     AppResponse<ItemVO> createFolder(ItemVO vo);
 
-    AppResponse<ItemVO> createFile(MultipartFile file, ItemVO vo);
+    AppResponse<ItemVO> createFile(ItemVO vo);
 
     AppResponse<List<ItemVO>> viewFiles();
 }

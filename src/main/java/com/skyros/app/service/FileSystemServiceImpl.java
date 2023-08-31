@@ -10,6 +10,7 @@ import com.skyros.app.repo.*;
 import com.skyros.app.vo.AppResponse;
 import com.skyros.app.vo.ItemVO;
 import com.skyros.app.vo.PermissionGroupVO;
+import liquibase.pro.packaged.nu;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,21 +91,21 @@ public class FileSystemServiceImpl implements FileSystemService {
 
 
     @Override
-    public AppResponse<ItemVO> createFile(MultipartFile file, ItemVO vo) {
+    public AppResponse<ItemVO> createFile(ItemVO vo) {
         try {
             vo.setType(FileTypeEnum.FILE);
-            ItemVO itemVO = vo.getParent();
             Item item = getItemMapper().VOToEntity(vo);
-            validateParentType(item.getParent(), FileTypeEnum.FILE);
-            if (null != itemVO) {
-                Optional<Item> optionalParent = getItemRepo().findById(itemVO.getId());
+            Item parent = item.getParent();
+            validateParentType(parent, FileTypeEnum.FILE);
+            if (null != parent && parent.getId() != null) {
+                Optional<Item> optionalParent = getItemRepo().findById(parent.getId());
                 if (optionalParent.isPresent()) {
-                    Item parent = optionalParent.get();
+                    parent = optionalParent.get();
                     PermissionGroup permissionGroup = parent.getPermissionGroup();
                     boolean editAllowed = isEditAllowed(permissionGroup.getPermissions());
                     if (editAllowed) {
                         Item savedItem = getItemRepo().save(item);
-                        saveFile(file, savedItem);
+                        //saveFile(file, savedItem);
                         return new AppResponse<>(getItemMapper().entityToVO(savedItem));
                     }
                 }
