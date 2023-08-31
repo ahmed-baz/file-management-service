@@ -28,4 +28,7 @@ public class PermissionGroup {
     @JoinColumn(name = "permission_group_id")
     private List<Permission> permissions;
 
+    public PermissionGroup(Long id) {
+        this.id = id;
+    }
 }

@@ -28,7 +28,7 @@ public class Item {
     @Enumerated(EnumType.STRING)
     private FileTypeEnum type;
     @JsonBackReference
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "permission_group_id")
     private PermissionGroup permissionGroup;
     @JsonBackReference

@@ -62,8 +62,6 @@ public class FileSystemServiceImpl implements FileSystemService {
             if (parent != null && parent.getId() != null) {
                 validateParentType(parent, FileTypeEnum.SPACE);
             }
-            getPermissionGroupRepo().save(item.getPermissionGroup());
-            getPermissionRepo().saveAll(item.getPermissionGroup().getPermissions());
             Item savedItem = getItemRepo().save(item);
             return new AppResponse<>(getItemMapper().entityToVO(savedItem));
         } catch (RuntimeException ex) {
@@ -77,10 +75,11 @@ public class FileSystemServiceImpl implements FileSystemService {
             vo.setType(FileTypeEnum.FOLDER);
             Item item = getItemMapper().VOToEntity(vo);
             validateParentType(item.getParent(), FileTypeEnum.FOLDER);
-            PermissionGroup permissionGroup = item.getPermissionGroup();
-            List<Permission> permissionList = getPermissionRepo().findPermissionByPermissionGroup(permissionGroup);
+            Item parent = getItemRepo().findById(item.getParent().getId()).get();
+            List<Permission> permissionList = getPermissionRepo().findPermissionByPermissionGroup(parent.getPermissionGroup());
             boolean editAllowed = isEditAllowed(permissionList);
             if (editAllowed) {
+                //item.setPermissionGroup(new PermissionGroup(parent.getPermissionGroup().getId()));
                 Item savedItem = getItemRepo().save(item);
                 return new AppResponse<>(getItemMapper().entityToVO(savedItem));
             }
