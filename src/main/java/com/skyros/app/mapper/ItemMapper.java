@@ -9,7 +9,4 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface ItemMapper extends BaseMapper<Item, ItemVO> {
 
-    //@Override
-    //@Mapping(target = "item", source = "item")
-    //ItemVO entityToVO(Item item);
 }
