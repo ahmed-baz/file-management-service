@@ -2,9 +2,11 @@ package com.skyros.app.controller;
 
 
 import com.skyros.app.enums.FileTypeEnum;
+import com.skyros.app.model.ItemView;
 import com.skyros.app.model.PermissionGroup;
 import com.skyros.app.service.FileSystemService;
 import com.skyros.app.vo.ItemVO;
+import com.skyros.app.vo.ItemViewVO;
 import com.skyros.app.vo.PermissionGroupVO;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +49,11 @@ public class FileController {
     @PostMapping("file/view")
     public AppResponse<List<ItemVO>> viewFiles() {
         return getFileSystemService().viewFiles();
+    }
+
+    @PostMapping("items/view")
+    public AppResponse<List<ItemViewVO>> viewItems() {
+        return getFileSystemService().viewItems();
     }
 
 

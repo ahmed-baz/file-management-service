@@ -2,14 +2,12 @@ package com.skyros.app.service;
 
 import com.skyros.app.enums.FileTypeEnum;
 import com.skyros.app.enums.PermissionLevelEnum;
-import com.skyros.app.mapper.FolderMapper;
-import com.skyros.app.mapper.ItemFileMapper;
-import com.skyros.app.mapper.ItemMapper;
-import com.skyros.app.mapper.PermissionGroupMapper;
+import com.skyros.app.mapper.*;
 import com.skyros.app.model.*;
 import com.skyros.app.repo.*;
 import com.skyros.app.vo.AppResponse;
 import com.skyros.app.vo.ItemVO;
+import com.skyros.app.vo.ItemViewVO;
 import com.skyros.app.vo.PermissionGroupVO;
 import liquibase.pro.packaged.nu;
 import lombok.Getter;
@@ -49,6 +47,10 @@ public class FileSystemServiceImpl implements FileSystemService {
     private ItemFileRepo itemFileRepo;
     @Autowired
     private ItemFileMapper itemFileMapper;
+    @Autowired
+    private ItemViewRepo itemViewRepo;
+    @Autowired
+    private ItemViewMapper itemViewMapper;
 
 
     @Override
@@ -129,6 +131,13 @@ public class FileSystemServiceImpl implements FileSystemService {
             item.getPermissionGroup().setPermissions(new ArrayList<>());
         }
         return new AppResponse<>(getItemMapper().entityListToVOList(items));
+    }
+
+    @Override
+    public AppResponse<List<ItemViewVO>> viewItems() {
+        List<ItemView> all = getItemViewRepo().findAll();
+        List<ItemViewVO> itemViewVOS = getItemViewMapper().entityListToVOList(all);
+        return new AppResponse<>(itemViewVOS);
     }
 
     private void saveFile(String file, ItemFile item) {
