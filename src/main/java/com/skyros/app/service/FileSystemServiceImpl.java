@@ -3,6 +3,7 @@ package com.skyros.app.service;
 import com.skyros.app.enums.FileTypeEnum;
 import com.skyros.app.enums.PermissionLevelEnum;
 import com.skyros.app.mapper.FolderMapper;
+import com.skyros.app.mapper.ItemFileMapper;
 import com.skyros.app.mapper.ItemMapper;
 import com.skyros.app.mapper.PermissionGroupMapper;
 import com.skyros.app.model.*;
@@ -44,6 +45,10 @@ public class FileSystemServiceImpl implements FileSystemService {
     private FolderRepo folderRepo;
     @Autowired
     private FolderMapper folderMapper;
+    @Autowired
+    private ItemFileRepo itemFileRepo;
+    @Autowired
+    private ItemFileMapper itemFileMapper;
 
 
     @Override
@@ -104,9 +109,10 @@ public class FileSystemServiceImpl implements FileSystemService {
                     PermissionGroup permissionGroup = parent.getPermissionGroup();
                     boolean editAllowed = isEditAllowed(permissionGroup.getPermissions());
                     if (editAllowed) {
-                        Item savedItem = getItemRepo().save(item);
-                        //saveFile(file, savedItem);
-                        return new AppResponse<>(getItemMapper().entityToVO(savedItem));
+                        ItemFile itemFile = getItemFileMapper().itemToFile(item);
+                        ItemFile savedFile = getItemFileRepo().save(itemFile);
+                        saveFile(vo.getFile(), savedFile);
+                        return new AppResponse<>(getItemFileMapper().fileToItemVO(savedFile));
                     }
                 }
             }
@@ -125,12 +131,12 @@ public class FileSystemServiceImpl implements FileSystemService {
         return new AppResponse<>(getItemMapper().entityListToVOList(items));
     }
 
-    private void saveFile(MultipartFile file, Item item) {
+    private void saveFile(String file, ItemFile item) {
         try {
             File itemFile = new File();
-            itemFile.setFileBinary(new String(file.getBytes(), StandardCharsets.UTF_8));
+            itemFile.setFileBinary(file);
             itemFile.setItem(item);
-            itemFile.setName(file.getOriginalFilename());
+            itemFile.setName(item.getName());
             getFileRepo().save(itemFile);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

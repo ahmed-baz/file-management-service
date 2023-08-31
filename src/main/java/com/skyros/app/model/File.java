@@ -29,6 +29,6 @@ public class File {
     @JsonBackReference
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "item_id")
-    private Item item;
+    private ItemFile item;
 
 }
