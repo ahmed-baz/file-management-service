@@ -8,5 +8,6 @@
     <include file="1.0/DDL/02_createPermission.xml" relativeToChangelogFile="true"/>
     <include file="1.0/DDL/03_createItem.xml" relativeToChangelogFile="true"/>
     <include file="1.0/DDL/04_createFile.xml" relativeToChangelogFile="true"/>
+    <include file="1.0/DDL/05_createItemView.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

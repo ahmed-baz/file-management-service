@@ -1,0 +1,25 @@
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="createItemView" author="Ahmed.Baz" labels="file-system">
+        <sql>
+            create
+            or replace view app_items as
+            select i.id,
+                   i."name",
+                   i."type",
+                   i.parent_id,
+                   i.permission_group_id
+            from item i
+                     inner join permission_group pg
+                                on i.permission_group_id = pg.id
+                     inner join "permission" p
+                                on pg.id = p.permission_group_id
+            where p."level" = 'VIEW';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
